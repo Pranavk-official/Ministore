@@ -73,53 +73,16 @@ module.exports = {
     }
   },
   updateQuantity: async (req, res) => {
-    const product_id = req.params.id;
-    const quantity = req.query.quantity;
-
     try {
-      // Find the cart by its ID
-      let cart = await Cart.findOne({user_id: req.user.id});
+      const productId = req.params.productId
+      const qty = req.query.qty
 
-      if (!cart) {
-        // Cart does not exist
-        return res.status(404).send("Cart not found");
-      }
+      console.log(typeof req.params.productId);
+      console.log(typeof req.query.qty);
 
-      // Find the product in the cart
-      let itemIndex = cart.items.findIndex(
-        (p) => p.product_id.toString() === product_id
-      ); // Corrected field name
-
-      if (itemIndex === -1) {
-        // Product does not exist in the cart
-        return res.status(404).send("Product not found in the cart");
-      }
-
-      // Assuming you have a Product model with a method to get stock
-      const product = await Product.findById(product_id);
-      if (!product) {
-        return res.status(404).send("Product not found");
-      }
-
-      // Compare the requested quantity with the available stock
-      if (quantity > product.stock) {
-        return res
-          .status(400)
-          .send("Requested quantity exceeds available stock");
-      }
-
-      // Update the quantity of the product in the cart
-      let productItem = cart.items[itemIndex];
-      productItem.quantity += parseInt(quantity); // Corrected to use `quantity`
-      cart.items[itemIndex] = productItem;
-
-      // Save the updated cart
-      cart = await cart.save();
-
-      return res.status(200).send(cart);
-    } catch (err) {
-      console.log(err);
-      res.status(500).send("Something went wrong");
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({success: false, message: error.message || 'Internal Server Error'})
     }
   },
 };
